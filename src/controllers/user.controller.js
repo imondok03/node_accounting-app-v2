@@ -32,10 +32,10 @@ const create = (req, res) => {
     res.status(422).send({
       error: 'User creation failed',
     });
+  } else {
+    res.statusCode = 201;
+    res.send(user);
   }
-
-  res.statusCode = 201;
-  res.send(user);
 };
 
 const remove = (req, res) => {
@@ -65,7 +65,7 @@ const update = (req, res) => {
   }
 
   if (!name) {
-    return res.status(400).json({ message: 'Name is required' });
+    return res.status(400).json({ error: 'Name is required' });
   }
 
   const updatedUser = userService.update({ id, name });

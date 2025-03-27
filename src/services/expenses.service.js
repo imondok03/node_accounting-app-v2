@@ -29,8 +29,12 @@ const getAll = (userId, categories, fromDate, toDate) => {
 
   if (fromDate || toDate) {
     filteredExpenses = filteredExpenses.filter((expense) => {
-      const isAfterFrom = fromDate ? expense.spentAt >= fromDate : true;
-      const isBeforeTo = toDate ? expense.spentAt <= toDate : true;
+      const isAfterFrom = fromDate
+        ? new Date(expense.spentAt) >= new Date(fromDate)
+        : true;
+      const isBeforeTo = toDate
+        ? new Date(expense.spentAt) <= new Date(toDate)
+        : true;
 
       return isAfterFrom && isBeforeTo;
     });

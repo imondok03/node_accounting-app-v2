@@ -1,3 +1,4 @@
+/* eslint-disable spaced-comment */
 const expensesService = require('../services/expenses.service.js');
 const userService = require('../services/user.service.js');
 
@@ -47,7 +48,7 @@ const create = (req, res) => {
   if (typeof amount !== 'number' || Number.isNaN(amount) || amount <= 0) {
     return res
       .status(400)
-      .send({ error: 'Amount must be a number and greater than 0' });
+      .send({ error: 'Amount must be a valid number greater than 0' });
   }
 
   const user = userService.getById(userId);
@@ -83,23 +84,55 @@ const remove = (req, res) => {
 
 const update = (req, res) => {
   const { id } = req.params;
-  const { title } = req.body;
+  const { title, amount, category, note } = req.body;
   const expense = expensesService.getById(id);
 
-  if (!expense) {
-    return res.status(404).end();
+  if (!(title || amount || category || note)) {
+    return res
+      .status(404)
+      .send({ error: 'At least one field is required to update' });
   }
 
+  if (!expense) {
+    return res.status(404).send({ error: 'Expense not found' });
+  }
+
+  //#region validate
   if (typeof title !== 'string') {
     return res.status(400).end();
   }
 
+  if (
+    amount &&
+    (typeof amount !== 'number' || Number.isNaN(amount) || amount <= 0)
+  ) {
+    return res
+      .status(400)
+      .send({ error: 'Amount must be a valid number greater than 0' });
+  }
+
+  if (category && typeof category !== 'string') {
+    return res.status(400).send({ error: 'Category must be a string' });
+  }
+
+  if (note && typeof note !== 'string') {
+    return res.status(400).send({ error: 'Note must be a string' });
+  }
+
+  if (!expense) {
+    return res.status(404).send({ error: 'Expense not found' });
+  }
+  //#endregion
+
   const updatedExpense = expensesService.update({
     id,
     title,
+    amount,
+    category,
+    note,
   });
 
-  res.send(updatedExpense);
+  res.status(200).send(updatedExpense);
 };
 
 module.exports = {
